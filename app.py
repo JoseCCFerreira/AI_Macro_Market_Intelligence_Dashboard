@@ -4,7 +4,17 @@ import pandas as pd
 import streamlit as st
 
 from src import relational_db
-from src.app_support import DISCLAIMER, apply_theme, db_ready, filter_assets, filters, load_table, metric_row
+from src.app_support import (
+    DISCLAIMER,
+    apply_theme,
+    db_ready,
+    explain_card,
+    filter_assets,
+    filters,
+    load_table,
+    metric_row,
+    performance_narrative,
+)
 from src.asset_universe import read_asset_universe
 from src.etl_pipeline import run_full_refresh
 from src.plotting import performance_bar, risk_return_scatter
@@ -43,9 +53,19 @@ with st.sidebar:
 st.markdown(
     """
     <div class="info-card">
-    This project is built as a local data platform: yfinance downloads are stored first in SQLite for auditability,
-    validated and transformed, then loaded into clean DuckDB analytical marts consumed by Streamlit.
+    <strong>What this is:</strong> a local market intelligence platform. Data is downloaded from yfinance,
+    stored first in SQLite for traceability, checked for quality, transformed into DuckDB analytical marts,
+    and only then consumed by Streamlit.
     </div>
+    """,
+    unsafe_allow_html=True,
+)
+st.markdown(
+    """
+    <p class="risk-note">
+    Read this like an analyst, not like a fortune teller: strong past performance can reverse, low volatility can rise,
+    and every forecast is a scenario with uncertainty.
+    </p>
     """,
     unsafe_allow_html=True,
 )
@@ -94,7 +114,9 @@ metric_row(
     ]
 )
 
-tab1, tab2, tab3 = st.tabs(["Performance", "Risk Map", "Quality & Audit"])
+st.markdown(f"<div class='analysis-card'><strong>Current read:</strong><br>{performance_narrative(perf)}</div>", unsafe_allow_html=True)
+
+tab1, tab2, tab3, tab4 = st.tabs(["Performance", "Risk Map", "Analysis Guide", "Quality & Audit"])
 with tab1:
     col1, col2 = st.columns(2)
     sector_perf = perf.groupby("sector", as_index=False)["ytd_return"].mean(numeric_only=True)
@@ -106,9 +128,34 @@ with tab1:
 
 with tab2:
     st.plotly_chart(risk_return_scatter(features), use_container_width=True)
-    st.caption("Higher expected return usually comes with higher uncertainty. Use this as exploratory analysis, not a trading signal.")
+    explain_card(
+        "How to read the risk map",
+        "Assets higher on the chart have stronger annualized return. Assets further right have more volatility. "
+        "The top-right corner can look attractive, but it usually means higher uncertainty and bigger potential drawdowns.",
+    )
 
 with tab3:
+    col1, col2 = st.columns(2)
+    winners = perf.sort_values("ytd_return", ascending=False).head(8)
+    losers = perf.sort_values("ytd_return").head(8)
+    risk = perf.sort_values("annualized_volatility", ascending=False).head(8)
+    defensive = perf.sort_values("annualized_volatility").head(8)
+    col1.subheader("Momentum leaders")
+    col1.dataframe(winners[["ticker", "sector", "region", "ytd_return", "annualized_volatility", "sharpe_ratio"]], use_container_width=True, hide_index=True)
+    col2.subheader("Weakest YTD")
+    col2.dataframe(losers[["ticker", "sector", "region", "ytd_return", "max_drawdown", "sharpe_ratio"]], use_container_width=True, hide_index=True)
+    col3, col4 = st.columns(2)
+    col3.subheader("Highest risk")
+    col3.dataframe(risk[["ticker", "sector", "region", "annualized_volatility", "max_drawdown", "return_1y"]], use_container_width=True, hide_index=True)
+    col4.subheader("Lower volatility")
+    col4.dataframe(defensive[["ticker", "sector", "region", "annualized_volatility", "max_drawdown", "return_1y"]], use_container_width=True, hide_index=True)
+    explain_card(
+        "Simple interpretation",
+        "Momentum leaders are assets that have been performing well recently. Weak assets may be in a correction or structural decline. "
+        "High volatility assets can move fast in both directions. Lower volatility assets are calmer, but not automatically safer.",
+    )
+
+with tab4:
     st.write("Relational staging database:", str(SQLITE_PATH))
     try:
         with relational_db.connect(SQLITE_PATH) as conn:

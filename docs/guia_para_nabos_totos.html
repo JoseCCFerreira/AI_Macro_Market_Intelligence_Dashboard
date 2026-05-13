@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Macro Market Intelligence Dashboard - Simple Guide</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --ink: #0f172a;
+      --muted: #475569;
+      --blue: #1d4ed8;
+      --green: #047857;
+      --red: #b91c1c;
+      --amber: #b45309;
+      --line: #cbd5e1;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #dbeafe 0%, #f8fafc 38%, #dcfce7 100%);
+      color: var(--ink);
+      line-height: 1.6;
+    }
+    header {
+      padding: 56px 24px 28px;
+      border-bottom: 1px solid rgba(148,163,184,.6);
+      background: rgba(255,255,255,.72);
+      backdrop-filter: blur(12px);
+    }
+    .wrap { max-width: 1120px; margin: 0 auto; }
+    h1 { font-size: clamp(2rem, 5vw, 4rem); line-height: 1; margin: 0 0 14px; letter-spacing: 0; }
+    h2 { margin: 38px 0 14px; font-size: 1.7rem; }
+    h3 { margin: 24px 0 8px; }
+    p { color: var(--muted); }
+    .subtitle { max-width: 760px; font-size: 1.15rem; color: #334155; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+    .card {
+      background: rgba(255,255,255,.95);
+      border: 1px solid rgba(148,163,184,.55);
+      border-radius: 10px;
+      padding: 18px;
+      box-shadow: 0 12px 30px rgba(15,23,42,.08);
+    }
+    .card strong { color: var(--blue); }
+    .note {
+      background: #fffbeb;
+      border: 1px solid #f59e0b;
+      border-left: 6px solid #d97706;
+      border-radius: 10px;
+      padding: 16px 18px;
+      color: #78350f;
+      margin: 18px 0;
+    }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px;
+      margin: 18px 0;
+    }
+    .step {
+      background: #eff6ff;
+      border: 1px solid #93c5fd;
+      border-radius: 10px;
+      padding: 14px;
+      font-weight: 700;
+      color: #1e3a8a;
+      text-align: center;
+    }
+    code, pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: 8px;
+      padding: 3px 6px;
+    }
+    pre { padding: 16px; overflow: auto; }
+    table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; }
+    th, td { border-bottom: 1px solid var(--line); padding: 12px; text-align: left; vertical-align: top; }
+    th { background: #e0f2fe; color: #0f172a; }
+    .good { color: var(--green); font-weight: 800; }
+    .bad { color: var(--red); font-weight: 800; }
+    .warn { color: var(--amber); font-weight: 800; }
+    main { padding: 24px; }
+    footer { padding: 28px 24px 56px; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>AI Macro Market Intelligence Dashboard</h1>
+      <p class="subtitle">
+        A very simple guide to understand what this project does, why it exists, how to run it,
+        and how to read the dashboard without pretending to be a Wall Street wizard.
+      </p>
+      <div class="note">
+        This is an educational analytics project. It is not financial advice. Do not buy or sell anything
+        only because a chart looks pretty.
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section>
+      <h2>1. What Is This Project?</h2>
+      <div class="card">
+        <p>
+          This project downloads market data for companies, ETFs and commodities related to artificial intelligence,
+          semiconductors, precious metals, energy and transport/logistics.
+        </p>
+        <p>
+          Then it cleans the data, calculates risk and return metrics, groups similar assets, detects big market events,
+          and creates forecast scenarios for the next 1 to 7 years.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>2. The Simple Idea</h2>
+      <div class="grid">
+        <div class="card"><strong>Download</strong><p>Get historical prices from yfinance.</p></div>
+        <div class="card"><strong>Store raw data</strong><p>Save the original download in SQLite so we can audit it later.</p></div>
+        <div class="card"><strong>Clean</strong><p>Remove broken rows, bad prices and duplicates.</p></div>
+        <div class="card"><strong>Analyse</strong><p>Load clean data into DuckDB and build charts, rankings and forecasts.</p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>3. Data Flow</h2>
+      <div class="flow">
+        <div class="step">yfinance</div>
+        <div class="step">SQLite staging</div>
+        <div class="step">Quality checks</div>
+        <div class="step">DuckDB analytics</div>
+        <div class="step">Streamlit dashboard</div>
+      </div>
+      <p>
+        The important rule: Streamlit reads from DuckDB. It does not directly read raw yfinance downloads.
+        This makes the project much closer to a real data platform.
+      </p>
+    </section>
+
+    <section>
+      <h2>4. What Each Database Does</h2>
+      <table>
+        <thead>
+          <tr><th>Layer</th><th>File</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>SQLite</td>
+            <td><code>data/relational_market.db</code></td>
+            <td>Stores raw downloaded prices, download batches, failed tickers and quality logs.</td>
+          </tr>
+          <tr>
+            <td>DuckDB</td>
+            <td><code>data/analytics_market.duckdb</code></td>
+            <td>Stores clean analytical tables used by the dashboard.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>5. How To Run It</h2>
+      <pre><code>cd AI_Macro_Market_Intelligence_Dashboard
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+streamlit run app.py</code></pre>
+      <p>Then open the local URL shown by Streamlit, usually <code>http://localhost:8501</code>.</p>
+    </section>
+
+    <section>
+      <h2>6. First Thing To Click</h2>
+      <div class="card">
+        <p>
+          In the sidebar, choose a few tickers and click <strong>Refresh market data</strong>.
+          This creates a new download batch, downloads prices, stores raw data in SQLite, transforms it,
+          and rebuilds DuckDB.
+        </p>
+        <p>
+          If one ticker fails, the app should continue. Failed tickers are logged and shown to the user.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>7. How To Read The Main Metrics</h2>
+      <table>
+        <thead>
+          <tr><th>Metric</th><th>Plain English Meaning</th><th>Be Careful Because...</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>YTD Return</td><td>How much the asset moved since the start of the year.</td><td>A great YTD can reverse quickly.</td></tr>
+          <tr><td>Annualized Return</td><td>Average yearly return estimated from historical data.</td><td>The past is not a promise.</td></tr>
+          <tr><td>Volatility</td><td>How jumpy the asset is.</td><td>High volatility means bigger ups and bigger downs.</td></tr>
+          <tr><td>Sharpe Ratio</td><td>Return compared with risk.</td><td>It can look good in calm markets and fail in crises.</td></tr>
+          <tr><td>Max Drawdown</td><td>The worst fall from a previous high.</td><td>Deep drawdowns are psychologically and financially painful.</td></tr>
+          <tr><td>VaR / CVaR</td><td>Loss estimates for bad market days.</td><td>Extreme events can be worse than the estimate.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>8. Dashboard Pages</h2>
+      <div class="grid">
+        <div class="card"><strong>Home</strong><p>Refresh status, KPIs, performance and quality logs.</p></div>
+        <div class="card"><strong>Market Overview</strong><p>Compare sectors, regions, correlation and cumulative returns.</p></div>
+        <div class="card"><strong>Asset Explorer</strong><p>Inspect one asset: price, returns, moving averages, drawdown and volume.</p></div>
+        <div class="card"><strong>Statistical Analysis</strong><p>Look at distributions, PCA, risk-return and correlations.</p></div>
+        <div class="card"><strong>Clustering</strong><p>Group assets with similar behaviour.</p></div>
+        <div class="card"><strong>Forecasting</strong><p>Build future scenarios with uncertainty bands.</p></div>
+        <div class="card"><strong>Events</strong><p>Find big gains, big losses, volume spikes and drawdown alerts.</p></div>
+        <div class="card"><strong>Regional Comparison</strong><p>Compare Americas, EMEA, Asia and Global assets.</p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>9. How To Read The Charts</h2>
+      <div class="grid">
+        <div class="card">
+          <strong>Cumulative return</strong>
+          <p>If the line goes up, the asset performed well over that period. If it falls hard, check drawdown and volatility.</p>
+        </div>
+        <div class="card">
+          <strong>Risk-return scatter</strong>
+          <p>Up means more return. Right means more risk. Top-right can be exciting but dangerous.</p>
+        </div>
+        <div class="card">
+          <strong>Correlation heatmap</strong>
+          <p>Dark positive values mean assets move together. Negative values can help diversification.</p>
+        </div>
+        <div class="card">
+          <strong>Forecast band</strong>
+          <p>The middle line is a scenario. The band shows uncertainty. Wide band means low confidence.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>10. What Is Clustering?</h2>
+      <p>
+        Clustering groups assets that behave similarly. For example, some assets may be high-growth and high-volatility,
+        while others may be defensive or behave like commodity hedges.
+      </p>
+      <div class="note">
+        Clustering does not know the future. It only groups assets using the features we give it.
+      </div>
+    </section>
+
+    <section>
+      <h2>11. What Are Forecasts?</h2>
+      <p>
+        Forecasts are educated scenarios based on historical data. This project includes baseline methods,
+        exponential smoothing, ARIMA, random forest and Monte Carlo simulation.
+      </p>
+      <p>
+        The right way to read a forecast is: <strong>"if the historical behaviour continues in this style,
+        this range of outcomes could happen."</strong>
+      </p>
+    </section>
+
+    <section>
+      <h2>12. Good Signs And Bad Signs</h2>
+      <table>
+        <thead>
+          <tr><th>Signal</th><th>Usually Good</th><th>Usually Bad</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Return</td><td class="good">Positive and consistent</td><td class="bad">Negative or very unstable</td></tr>
+          <tr><td>Volatility</td><td class="good">Controlled for the expected return</td><td class="bad">High without enough return</td></tr>
+          <tr><td>Drawdown</td><td class="good">Small and recoverable</td><td class="bad">Deep and long-lasting</td></tr>
+          <tr><td>Correlation</td><td class="good">Useful diversification</td><td class="bad">Everything falls together</td></tr>
+          <tr><td>Forecast band</td><td class="good">Narrower uncertainty</td><td class="bad">Very wide uncertainty</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>13. What Skills This Shows</h2>
+      <div class="grid">
+        <div class="card"><strong>Data Engineering</strong><p>Ingestion, SQLite staging, validation, DuckDB marts and pipeline design.</p></div>
+        <div class="card"><strong>Data Analysis</strong><p>Risk analysis, performance analysis, regional and sector comparison.</p></div>
+        <div class="card"><strong>Data Science</strong><p>Clustering, PCA, forecasting, Monte Carlo and machine learning regression.</p></div>
+        <div class="card"><strong>Financial Analytics</strong><p>Volatility, drawdown, Sharpe, Sortino, VaR, CVaR and benchmark comparison.</p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>14. Final Reality Check</h2>
+      <div class="note">
+        Markets are messy. Data can be wrong. Tickers can fail. Forecasts can fail. This project is useful because it
+        makes the assumptions visible instead of hiding them behind one shiny number.
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      AI Macro Market Intelligence Dashboard - simple guide for understanding the project, the pipeline and the analysis.
+    </div>
+  </footer>
+</body>
+</html>

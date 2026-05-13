@@ -12,14 +12,87 @@ DISCLAIMER = "Educational analytics only. This dashboard is not financial advice
 
 
 def apply_theme() -> None:
-    st.set_page_config(page_title="AI Macro Market Intelligence", layout="wide", page_icon="📈")
+    st.set_page_config(page_title="AI Macro Market Intelligence", layout="wide", page_icon="AI")
     st.markdown(
         """
         <style>
-        .stApp { background: radial-gradient(circle at top left, #172554 0, #020617 28%, #030712 100%); color: #e5e7eb; }
-        div[data-testid="stMetric"] { background: rgba(15,23,42,.78); border: 1px solid rgba(148,163,184,.22); border-radius: 8px; padding: 14px; }
-        .info-card { background: rgba(15,23,42,.72); border: 1px solid rgba(56,189,248,.22); border-radius: 8px; padding: 16px; margin-bottom: 10px; }
-        .risk-note { color: #fbbf24; font-size: .92rem; }
+        :root {
+            --bg: #f8fafc;
+            --panel: #ffffff;
+            --panel-soft: #eef2ff;
+            --text: #0f172a;
+            --muted: #475569;
+            --line: #cbd5e1;
+            --blue: #1d4ed8;
+            --green: #047857;
+            --red: #b91c1c;
+            --amber: #b45309;
+        }
+        .stApp {
+            background:
+                linear-gradient(135deg, rgba(219,234,254,.92) 0%, rgba(248,250,252,.98) 34%, rgba(236,253,245,.92) 100%);
+            color: var(--text);
+        }
+        section[data-testid="stSidebar"] {
+            background: #0f172a;
+            border-right: 1px solid rgba(255,255,255,.14);
+        }
+        section[data-testid="stSidebar"] * { color: #f8fafc !important; }
+        h1, h2, h3, h4, p, label, span, div { letter-spacing: 0; }
+        h1 { color: #0f172a; font-weight: 800; }
+        h2, h3 { color: #1e293b; }
+        div[data-testid="stMetric"] {
+            background: rgba(255,255,255,.94);
+            border: 1px solid rgba(30,64,175,.18);
+            border-left: 5px solid #2563eb;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 8px 20px rgba(15,23,42,.08);
+        }
+        div[data-testid="stMetric"] label, div[data-testid="stMetric"] [data-testid="stMetricValue"] {
+            color: #0f172a !important;
+        }
+        div[data-testid="stMetricDelta"] { color: #047857 !important; }
+        .info-card, .analysis-card, .explain-card {
+            background: rgba(255,255,255,.96);
+            border: 1px solid rgba(148,163,184,.48);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 10px 24px rgba(15,23,42,.07);
+            color: #0f172a;
+        }
+        .analysis-card strong { color: #1d4ed8; }
+        .risk-note {
+            background: #fffbeb;
+            border: 1px solid #f59e0b;
+            border-left: 5px solid #d97706;
+            border-radius: 8px;
+            color: #78350f;
+            padding: 12px 14px;
+            font-size: .94rem;
+        }
+        .good { color: var(--green); font-weight: 700; }
+        .bad { color: var(--red); font-weight: 700; }
+        .warn { color: var(--amber); font-weight: 700; }
+        div[data-testid="stDataFrame"] {
+            border: 1px solid rgba(148,163,184,.45);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .stTabs [data-baseweb="tab-list"] { gap: 8px; }
+        .stTabs [data-baseweb="tab"] {
+            background: rgba(255,255,255,.88);
+            border: 1px solid rgba(148,163,184,.55);
+            border-radius: 8px 8px 0 0;
+            color: #0f172a;
+            font-weight: 700;
+        }
+        .stTabs [aria-selected="true"] {
+            background: #1d4ed8;
+            color: #ffffff;
+        }
+        a { color: #1d4ed8; font-weight: 700; }
         </style>
         """,
         unsafe_allow_html=True,
@@ -92,3 +165,23 @@ def metric_row(items: list[tuple[str, str, str | None]]) -> None:
     cols = st.columns(len(items))
     for col, (label, value, delta) in zip(cols, items):
         col.metric(label, value, delta)
+
+
+def explain_card(title: str, body: str) -> None:
+    st.markdown(f"<div class='explain-card'><strong>{title}</strong><br>{body}</div>", unsafe_allow_html=True)
+
+
+def performance_narrative(perf: pd.DataFrame) -> str:
+    if perf.empty:
+        return "No performance data is available yet."
+    best = perf.sort_values("ytd_return", ascending=False).iloc[0]
+    worst = perf.sort_values("ytd_return").iloc[0]
+    risky = perf.sort_values("annualized_volatility", ascending=False).iloc[0]
+    drawdown = perf.sort_values("max_drawdown").iloc[0]
+    return (
+        f"<span class='good'>{best['ticker']}</span> is the strongest YTD asset in the current filter "
+        f"({best['ytd_return']:.2%}), while <span class='bad'>{worst['ticker']}</span> is the weakest "
+        f"({worst['ytd_return']:.2%}). The highest volatility asset is "
+        f"<span class='warn'>{risky['ticker']}</span> ({risky['annualized_volatility']:.2%}), and the deepest "
+        f"historical drawdown belongs to <span class='bad'>{drawdown['ticker']}</span> ({drawdown['max_drawdown']:.2%})."
+    )

@@ -152,6 +152,16 @@ Streamlit reads from DuckDB, not directly from yfinance or raw SQLite tables.
 - Big Gains and Losses Stream: event timeline, severity cards and event table.
 - Regional Comparison: equal-weighted regional indices, winners, losers and sector comparison.
 
+## Simple HTML Guide
+
+Open this file for a plain-language explanation of the whole project:
+
+```text
+docs/guia_para_nabos_totos.html
+```
+
+It explains the pipeline, databases, charts, metrics, forecasts and limitations for complete beginners.
+
 ## Statistical Methods
 
 - Simple returns and log returns
