@@ -1,0 +1,12 @@
+streamlit>=1.36
+yfinance>=0.2.40
+pandas>=2.2
+numpy>=1.26
+scikit-learn>=1.4
+statsmodels>=0.14
+scipy>=1.12
+plotly>=5.22
+duckdb>=1.0
+SQLAlchemy>=2.0
+PyYAML>=6.0
+pytest>=8.0

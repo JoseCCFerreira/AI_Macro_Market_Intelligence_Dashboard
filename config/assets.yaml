@@ -1,0 +1,122 @@
+sectors:
+  Artificial Intelligence:
+    Americas:
+      - NVDA
+      - MSFT
+      - GOOGL
+      - AMZN
+      - META
+      - IBM
+      - ORCL
+      - PLTR
+      - CRM
+      - SNOW
+    EMEA:
+      - SAP.DE
+      - ASML.AS
+      - REL.L
+      - SGE.L
+    Asia:
+      - 9988.HK
+      - 0700.HK
+      - 6758.T
+      - 6861.T
+      - 005930.KS
+  Semiconductors:
+    Americas:
+      - NVDA
+      - AMD
+      - INTC
+      - AVGO
+      - QCOM
+      - MU
+      - TXN
+      - AMAT
+      - LRCX
+      - KLAC
+    EMEA:
+      - ASML.AS
+      - STM
+      - IFX.DE
+      - ASM.AS
+    Asia:
+      - TSM
+      - 005930.KS
+      - 000660.KS
+      - 8035.T
+      - 6857.T
+  Precious Metals:
+    ETFs/Futures:
+      - GLD
+      - SLV
+      - PPLT
+      - PALL
+      - GC=F
+      - SI=F
+      - PL=F
+      - PA=F
+    Miners:
+      - NEM
+      - GOLD
+      - AEM
+      - FNV
+      - WPM
+      - RIO
+      - BHP
+  Fuels / Energy:
+    Americas:
+      - XOM
+      - CVX
+      - COP
+      - SLB
+      - LNG
+      - ENB
+    EMEA:
+      - SHEL
+      - BP
+      - TTE
+      - EQNR.OL
+      - ENI.MI
+    Asia:
+      - 0857.HK
+      - 0883.HK
+      - 5020.T
+    Commodities:
+      - CL=F
+      - BZ=F
+      - NG=F
+  Transport and Logistics:
+    Americas:
+      - UPS
+      - FDX
+      - UNP
+      - CSX
+      - NSC
+      - CNI
+      - CP
+      - JBHT
+      - CHRW
+      - GXO
+    EMEA:
+      - DHL.DE
+      - DSV.CO
+      - MAERSK-B.CO
+      - HLAG.DE
+    Asia:
+      - 9101.T
+      - 9104.T
+      - 9107.T
+      - 2618.HK
+      - 601919.SS
+benchmarks:
+  Global:
+    - ACWI
+  Americas:
+    - SPY
+    - QQQ
+  EMEA:
+    - FEZ
+  Asia:
+    - EWJ
+    - FXI
+    - EEM
